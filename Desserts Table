@@ -1,0 +1,19 @@
+CREATE TABLE desserts (id INTEGER PRIMARY KEY, name TEXT, rating INTEGER, price INTEGER, baking_time INTEGER);
+
+INSERT INTO desserts VALUES (1, "cookies", 1, 2, 15);
+INSERT INTO desserts VALUES (2, "brownies", 4, 3, 12);
+INSERT INTO desserts VALUES (3, "blondies", 2, 5, 6);
+INSERT INTO desserts VALUES (4, "haupia pie", 12, 10, 20);
+INSERT INTO desserts VALUES (5, "mandarin pie", 3, 14, 14);
+INSERT INTO desserts VALUES (6, "gelato", 14, 4, 0);
+INSERT INTO desserts VALUES (7, "eclairs", 5, 5, 15);
+INSERT INTO desserts VALUES (8, "banana pie", 6, 12, 16);
+INSERT INTO desserts VALUES (9, "cheesecake", 7, 12, 14);
+INSERT INTO desserts VALUES (10, "chocolate cake", 8, 6, 5);
+INSERT INTO desserts VALUES (11, "birthday cake", 9, 4, 5);
+INSERT INTO desserts VALUES (12, "butter mochi", 10, 7, 7);
+INSERT INTO desserts VALUES (13, "matcha cookies", 11, 13, 10);
+INSERT INTO desserts VALUES (14, "jello cake", 13, 5, 7);
+INSERT INTO desserts VALUES (15, "donuts", 15, 4, 2);
+SELECT * FROM desserts ORDER BY price;
+SELECT AVG(price) FROM desserts;
