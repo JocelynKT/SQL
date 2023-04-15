@@ -1,0 +1,42 @@
+CREATE TABLE singers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    genre TEXT);
+    
+INSERT INTO singers (name, genre) VALUES ("doja cat", "pop");
+INSERT INTO singers (name, genre) VALUES ("sza", "pop");
+INSERT INTO singers (name, genre) VALUES ("nicki minaj", "rap");
+INSERT INTO singers (name, genre) VALUES ("kehlani", "r&b");
+INSERT INTO singers (name, genre) VALUES ("taylor swift", "country");
+
+CREATE TABLE friends (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    singer1_id INTEGER,
+    singer2_id INTEGER);
+
+INSERT INTO friends (singer1_id, singer2_id) VALUES (1, 2);
+INSERT INTO friends (singer1_id, singer2_id) VALUES (3, 5);
+
+CREATE TABLE songs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    artist_id INTEGER,
+    title TEXT);
+    
+INSERT INTO songs (artist_id, title) VALUES (2, "Kill Bill");
+INSERT INTO songs (artist_id, title) VALUES (5, "Lover");
+INSERT INTO songs (artist_id, title) VALUES (3, "Monster");
+INSERT INTO songs (artist_id, title) VALUES (4, "Honey");
+INSERT INTO songs (artist_id, title) VALUES (1, "Juicy");
+INSERT INTO songs (artist_id, title) VALUES (3, "Barbie Dreamz");
+INSERT INTO songs (artist_id, title) VALUES (2, "Kiss Me More");
+INSERT INTO songs (artist_id, title) VALUES (5, "Lavender Haze");
+
+SELECT singers.name, songs.title FROM singers
+JOIN songs
+ON singers.id = songs.artist_id;
+
+SELECT a.name, b.name FROM friends
+JOIN singers a
+ON singer1_id = a.id
+JOIN singers b
+ON singer2_id = b.id;
