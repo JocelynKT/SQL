@@ -1,0 +1,215 @@
+/*How many orders were placed in January?*/
+SELECT COUNT(orderID) FROM BIT_DB.JanSales
+WHERE length(orderid) = 6
+AND orderid <> 'Order ID';
+
+/*How many of those orders were for an iPhone?*/
+SELECT COUNT(orderID) FROM BIT_DB.JanSales
+WHERE length(orderid) = 6
+AND orderid <> 'Order ID'
+AND product='iPhone';
+
+/*Select the customer account numbers for 
+all the orders that were placed in February.*/
+SELECT distinct acctnum
+FROM BIT_DB.customers acct
+INNER JOIN BIT_DB.FebSales feb
+ON acct.order_id=feb.orderid
+WHERE length(orderid) = 6
+AND orderid <> 'Order ID';
+
+/*Which product was the cheapest one sold 
+in January, and what was the price?*/
+SELECT product, price 
+FROM BIT_DB.JanSales
+WHERE price in (SELECT MIN(price) FROM BIT_DB.JanSales);
+
+/*What is the total revenue for each 
+product sold in January? (Revenue can 
+be calculated using the number of products 
+sold and the price of the products).*/
+SELECT product, SUM(quantity)*price as revenue
+FROM BIT_DB.JanSales
+GROUP BY product;
+
+/*Which products were sold in February 
+at 548 Lincoln St, Seattle, WA 98101, 
+how many of each were sold, and what 
+was the total revenue*/
+SELECT product, SUM(product) as TotalItems, 
+SUM(quantity)*price as Revenue
+FROM BIT_DB.FebSales
+WHERE location='548 Lincoln St, Seattle, WA 98101'
+GROUP BY product;
+
+/*How many customers ordered more 
+than 2 products at a time in February, 
+and what was the average amount spent 
+for those customers*/
+SELECT COUNT(distinct acctnum), AVG(quantity)*price
+FROM BIT_DB.FebSales
+LEFT JOIN BIT_DB.Customers
+ON FebSales.orderid=Customers.order_ID
+WHERE FebSales.Quantity>2;
+
+/*List all the products sold in Los 
+Angeles in February, and include how 
+many of each were sold*/
+SELECT Product, SUM(quantity)
+FROM BIT_DB.FebSales
+WHERE Location like '%Los Angeles%'
+GROUP BY Product;
+
+/*Which locations in New York 
+received at least 3 orders in 
+January, and how many orders 
+did they each receive*/
+SELECT location, COUNT(orderid) as TotalOrders
+FROM BIT_DB.JanSales
+WHERE length(orderid)=6
+AND orderid<>'Order ID'
+AND location like'%NY%'
+GROUP BY location
+HAVING COUNT(orderid)>2;
+ 
+/*How many of each type of 
+headphone were sold in
+February?*/
+SELECT product, SUM(quantity) as TotalSold
+FROM BIT_DB.FebSales
+WHERE product like '%headphone%'
+GROUP BY product;
+
+/*What was the average amount spent
+per account in February?*/
+SELECT SUM(quantity*price)/COUNT(cust.acctnum)
+FROM BIT_DB.FebSales Feb
+LEFT JOIN BIT_DB.customers cust
+ON Feb.orderID=cust.order_id
+WHERE length(orderid)=6
+AND orderid<>'Order ID';
+
+/*What was the average quantity 
+of products purchased per account 
+in Febraury?*/
+SELECT SUM(quantity)/COUNT(cust.acctnum)
+as AvgQty
+FROM BIT_DB.FebSales Feb
+LEFT JOIN BIT_DB.customers cust
+ON Feb.orderID=cust.order_id
+WHERE length(orderid)=6
+AND orderid<>'Order ID';
+
+/*Which product brought in the most revenue
+in January and how much revenue did it
+bring in total?*/
+SELECT product, SUM(quantity*price) as Revenue
+FROM BIT_DB.JanSales
+GROUP BY product
+ORDER BY Revenue DESC
+LIMIT 1;
+
+/*What is the favored artist of this
+playlist?*/
+SELECT artist_name, COUNT(artist_name) as TotalSongs
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name
+ORDER BY TotalSongs DESC;
+
+/*Group the songs by high 
+energy, medium energy, and 
+low energy*/
+SELECT COUNT(track_name),
+CASE
+    WHEN energy>0.80 THEN 'High Energy'
+    WHEN energy>0.60 THEN 'Medium Energy'
+    ELSE 'Low Energy'
+    END AS Level
+FROM BIT_DB.Spotifydata
+GROUP BY Level;
+
+/*How many songs have an above average
+popularity rating and the liveness is
+above 0.15?*/
+SELECT COUNT(track_id) as AbvAvg
+FROM BIT_DB.Spotifydata
+WHERE popularity > (SELECT AVG(popularity) FROM BIT_DB.Spotifydata);
+
+/*Convert the duration of the songs
+to the nearest minute and order by 
+track name*/
+SELECT track_name, (duration_ms/60000) AS Minutes
+FROM BIT_DB.Spotifydata
+ORDER BY duration_ms ASC;
+
+/*Calculate the average populartiy for the
+artists (some artists have multiple songs
+within the playlist). Then, for every artist
+with an average popularity of 90 or above, 
+show thier name, avg popularity, and label
+them as "Top Star"*/
+WITH Popularity_CTE AS (
+SELECT artist_name, AVG(popularity) AS AvgPop
+FROM Spotifydata
+GROUP BY artist_name
+)
+SELECT artist_name, AvgPop, 'Top Stars' as Tag
+FROM Popularity_CTE
+WHERE AvgPop>=90;
+
+/*It's time to find the employee of the month. Total how
+many customers each employee has acquired to see who was 
+the most productive.*/
+SELECT (e.FirstName||' '|| e.LastName) as Employee, 
+COUNT(c.supportrepid) as NoOfCalls
+FROM chinook.customers c
+JOIN chinook.employees e
+ON c.SupportRepId=e.EmployeeId
+GROUP BY c.SupportRepId
+ORDER BY c.SupportRepId;
+
+/*But wait, we can't only base their achievements
+on the amount of customers they have. Who made the 
+most sales each year (2009-2013)?*/
+SELECT (e.FirstName||' '|| e.LastName) as Employee,
+strftime('%Y', i.invoicedate) as YearOfSales, ROUND(SUM(i.total), 0) as TotalSales
+FROM chinook.customers c
+JOIN chinook.employees e
+ON c.supportrepid=e.employeeid
+JOIN chinook.invoices i
+ON c.customerid=i.customerid
+GROUP BY Employee, YearOfSales
+ORDER BY YearOfSales, TotalSales DESC;
+
+/*Finally, figure out each Sales Rep's average
+sales.*/
+SELECT (e.FirstName||' '|| e.LastName) as Employee, ROUND(AVG(i.total), 0) as AvgSales
+FROM chinook.customers c
+JOIN chinook.employees e
+ON c.supportrepid=e.employeeid
+JOIN chinook.invoices i
+ON c.customerid=i.customerid
+GROUP BY Employee
+ORDER BY AvgSales DESC;
+
+/*We need to improve our sales. Which countries
+should we focus on improving our marketing to
+build a stronger customer base?*/
+SELECT billingcountry, COUNT(invoiceid) as orders
+FROM chinook.invoices
+GROUP BY billingcountry
+ORDER BY orders, billingcountry;
+
+/*Display all the songs on playlist 1.*/
+SELECT t.name 
+FROM chinook.tracks t
+JOIN chinook.playlist_track pt
+ON t.trackid=pt.trackid
+WHERE pt.playlistid=1;
+
+/*Display the song count for each playlist*/
+SELECT p.name as Name, COUNT(trackid) as NoOfSongs
+FROM chinook.playlist_track pt
+JOIN chinook.playlists p
+ON pt.playlistid=p.playlistid
+GROUP BY Name;
